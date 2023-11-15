@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "actix_server",
+    "hyper_service",
+]
+resolver = "2"
