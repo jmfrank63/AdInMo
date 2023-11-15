@@ -4,6 +4,8 @@ ARG RUST_VERSION=1.73
 # Use the official Rust image as a builder
 FROM rust:${RUST_VERSION} as builder
 
+# Set the environment variable for the service address and port
+ENV SERVICE_ADDR_PORT="0.0.0.0:5500"
 # Create a new empty shell project
 RUN USER=root cargo new --bin hyper_service
 WORKDIR /hyper_service

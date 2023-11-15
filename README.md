@@ -51,9 +51,9 @@ set to return a simple success message).
 
 ### Usage
 
-- The Actix server is accessible at `http://localhost:3000/run`.
+- The Actix server is accessible at `http://127.0.0.1:3300/run`.
 - The Hyper service runs internally within the Docker network and is
-accessible to the Actix server at `http://service:5000`.
+accessible to the Actix server at `http://service:5500`.
 
 ## Development
 
