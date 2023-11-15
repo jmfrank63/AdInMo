@@ -12,11 +12,18 @@ async fn run_endpoint(client: web::Data<Client>, app_config: web::Data<AppConfig
     // Use the stored service URL
     let service_url = &app_config.service_url;
 
-    // Send a GET request to the service
-    let response = client.get(service_url).send().await;
-
-    match response {
-        Ok(_) => HttpResponse::Ok().body(format!("Request forwarded to the service at {}", service_url)),
+    // Send a GET request to the service and await the response
+    match client.get(service_url).send().await {
+        Ok(response) => {
+            if response.status().is_success() {
+                match response.text().await {
+                    Ok(body) => HttpResponse::Ok().body(body),
+                    Err(_) => HttpResponse::InternalServerError().body("Failed to read response body"),
+                }
+            } else {
+                HttpResponse::InternalServerError().body("Service responded with an error")
+            }
+        }
         Err(_) => HttpResponse::InternalServerError().body("Error forwarding the request"),
     }
 }

@@ -27,6 +27,11 @@ RUN cargo build --release
 # Final stage
 FROM ubuntu:jammy
 
+# Update package lists and install ca-certificates
+RUN apt-get update \
+    && apt-get install -y curl \
+    && update-ca-certificates
+
 # Copy the build artifact from the builder stage
 COPY --from=builder /hyper_service/target/release/hyper_service .
 
