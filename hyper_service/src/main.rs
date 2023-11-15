@@ -40,19 +40,23 @@ async fn handle_request(_: Request<Body>) -> Result<Response<Body>, Infallible> 
         }
     }
 
-    // Process freq_map to find and sort the most frequent numbers
-    let mut freq_vec: Vec<_> = freq_map.into_iter().collect();
-    freq_vec.sort_by(|a, b| a.0.cmp(&b.0));
-
-    // Filter out numbers that appear only once
-    let frequent_numbers: Vec<_> = freq_vec.into_iter()
-                                           .filter(|&(_, count)| count > 1)
-                                           .map(|(val, _)| val)
-                                           .collect();
+    let frequent_numbers = calculate_most_frequent_numbers(freq_map);
 
     let response_body = serde_json::to_string(&frequent_numbers).unwrap_or_else(|_| "[]".to_string());
 
     Ok(Response::new(Body::from(response_body)))
+}
+
+fn calculate_most_frequent_numbers(freq_map: HashMap<u64, u32>) -> Vec<u64> {
+    // Process freq_map to find and sort the most frequent numbers
+    let mut freq_vec: Vec<_> = freq_map.into_iter().collect();
+    freq_vec.sort_by(|a, b| a.0.cmp(&b.0));
+
+    // Filter out numbers that appear only once and return the vector
+    freq_vec.into_iter()
+                                           .filter(|&(_, count)| count > 1)
+                                           .map(|(val, _)| val)
+                                           .collect()
 }
 
 #[tokio::main]
@@ -74,5 +78,60 @@ async fn main() {
 
     if let Err(e) = server.await {
         eprintln!("server error: {}", e);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_single_occurrences() {
+        let mut freq_map = HashMap::new();
+        freq_map.insert(1, 1);
+        freq_map.insert(2, 1);
+        freq_map.insert(3, 1);
+
+        let result = calculate_most_frequent_numbers(freq_map);
+        assert!(result.is_empty());
+    }
+
+    #[test]
+    fn test_multiple_occurrences() {
+        let mut freq_map = HashMap::new();
+        freq_map.insert(1, 2);
+        freq_map.insert(2, 1);
+        freq_map.insert(3, 3);
+
+        let result = calculate_most_frequent_numbers(freq_map);
+        assert_eq!(result, vec![1, 3]);
+    }
+
+    #[test]
+    fn test_various_occurrences() {
+        let mut freq_map = HashMap::new();
+        for &num in &[3, 2, 5, 1, 5, 7, 2, 1] {
+            *freq_map.entry(num).or_insert(0) += 1;
+        }
+        let result = calculate_most_frequent_numbers(freq_map);
+        assert_eq!(result, vec![1, 2, 5]);
+    }
+
+    #[test]
+    fn test_single_repeated_number() {
+        let mut freq_map = HashMap::new();
+        for &num in &[5, 7, 7] {
+            *freq_map.entry(num).or_insert(0) += 1;
+        }
+        let result = calculate_most_frequent_numbers(freq_map);
+        assert_eq!(result, vec![7]);
+    }
+
+    #[test]
+    fn test_no_occurrences() {
+        let freq_map = HashMap::new();
+
+        let result = calculate_most_frequent_numbers(freq_map);
+        assert!(result.is_empty());
     }
 }
