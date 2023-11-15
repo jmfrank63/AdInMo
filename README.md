@@ -27,7 +27,7 @@ set to return a simple success message).
 1. **Clone the Repository**:
 
     ``` bash
-    git clone [repository-url]
+    git clone https://github.com/jmfrank63/AdInMo.git
     cd AdInMo
     ```
 
@@ -86,10 +86,4 @@ procedures for contributing to a GitHub repository.
 
 ## License
 
-Specify the license under which the project is available.
-
----
-
-Replace `[repository-url]` with the actual URL of your Git repository. You
-may also want to add more sections as needed, such as for testing,
-environment setup, or advanced usage.
+This project is licensed under the MIT License - see the LICENSE.md file for details.
