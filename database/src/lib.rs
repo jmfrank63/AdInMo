@@ -1,10 +1,13 @@
 use sqlx::{MySqlPool, query};
 use tokio::sync::OnceCell;
+use dotenv::dotenv;
 
 static POOL: OnceCell<MySqlPool> = OnceCell::const_new();
 
-pub async fn initialize_db_pool(database_url: &str) -> Result<(), sqlx::Error> {
-    let pool = MySqlPool::connect(database_url).await?;
+pub async fn initialize_db_pool() -> Result<(), sqlx::Error> {
+    dotenv().ok();
+    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let pool = MySqlPool::connect(&database_url).await?;
     POOL.set(pool).expect("Failed to set database pool");
     Ok(())
 }

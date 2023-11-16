@@ -79,11 +79,10 @@ fn calculate_most_frequent_numbers(freq_map: HashMap<u64, i32>) -> Vec<u64> {
 #[tokio::main]
 async fn main() {
     dotenv().ok();
-    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    database::initialize_db_pool(&database_url)
+
+    database::initialize_db_pool()
         .await
         .expect("Failed to initialize database pool");
-
     let service_addr_port =
         std::env::var("SERVICE_ADDR_PORT").unwrap_or("0.0.0.0:5500".to_string());
     let addr = SocketAddr::from_str(&service_addr_port)

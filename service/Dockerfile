@@ -22,7 +22,6 @@ RUN cargo build --release
 COPY . .
 
 # Build for release
-RUN cargo build --release --bin database
 RUN cargo build --release --bin service
 
 # Final stage
@@ -37,7 +36,6 @@ RUN apt-get update \
 
 # Copy the build artifact from the builder stage
 COPY --from=builder /usr/src/adinmo/target/release/service /usr/local/bin/service
-# COPY --from=builder /usr/src/adinmo/target/release/database /usr/local/bin/database
 
 # Set the startup command to run your binary
 CMD ["service"]
