@@ -2,7 +2,7 @@ use dotenv::dotenv;
 use futures::future::join_all;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server};
-use serde_json::json;
+use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::convert::Infallible;
 use std::net::SocketAddr;
@@ -10,7 +10,7 @@ use std::str::FromStr;
 
 const HTTP_BIN_URL: &str = "https://httpbin.org/post";
 
-async fn handle_request(_: Request<Body>, db_pool: Arc<MySqlPool>) -> Result<Response<Body>, Infallible> {
+async fn handle_request(_: Request<Body>) -> Result<Response<Body>, Infallible> {
     let client = reqwest::Client::new();
     let mut requests = Vec::new();
 
@@ -27,18 +27,31 @@ async fn handle_request(_: Request<Body>, db_pool: Arc<MySqlPool>) -> Result<Res
         requests.push(request);
     }
 
-    let responses = join_all(requests).await;
     let mut freq_map = HashMap::new();
-
-    for response in responses {
-        if let Ok(res) = response {
-            if let Ok(json) = res.json::<serde_json::Value>().await {
-                if let Some(value) = json["json"]["value"].as_u64() {
-                    *freq_map.entry(value).or_insert(0) += 1;
-                }
+    let responses = join_all(requests).await;
+    for response in responses.into_iter().flatten() {
+        let response_body = match response.json::<Value>().await {
+            Ok(response_body) => response_body,
+            Err(e) => {
+                eprintln!("Error parsing response body: {}", e);
+                continue;
             }
-        } else {
-            // Log error but continue processing
+        };
+        let generated_value = match response_body["json"]["value"].as_u64() {
+            Some(generated_value) => generated_value,
+            None => {
+                eprintln!("Error parsing generated value");
+                continue;
+            }
+        };
+        *freq_map.entry(generated_value).or_insert(0) += 1;
+        if let Err(e) = database::insert_into_database(
+            generated_value as i32,
+            &response_body.to_string(),
+        )
+        .await
+        {
+            eprintln!("Error inserting into database: {}", e);
         }
     }
 
@@ -50,7 +63,7 @@ async fn handle_request(_: Request<Body>, db_pool: Arc<MySqlPool>) -> Result<Res
     Ok(Response::new(Body::from(response_body)))
 }
 
-fn calculate_most_frequent_numbers(freq_map: HashMap<u64, u32>) -> Vec<u64> {
+fn calculate_most_frequent_numbers(freq_map: HashMap<u64, i32>) -> Vec<u64> {
     // Process freq_map to find and sort the most frequent numbers
     let mut freq_vec: Vec<_> = freq_map.into_iter().collect();
     freq_vec.sort_by(|a, b| a.0.cmp(&b.0));
@@ -66,9 +79,10 @@ fn calculate_most_frequent_numbers(freq_map: HashMap<u64, u32>) -> Vec<u64> {
 #[tokio::main]
 async fn main() {
     dotenv().ok();
-
-    let db_pool = mariadb_database::get_db_pool().await;
-    let db_pool = Arc::new(db_pool);
+    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    database::initialize_db_pool(&database_url)
+        .await
+        .expect("Failed to initialize database pool");
 
     let service_addr_port =
         std::env::var("SERVICE_ADDR_PORT").unwrap_or("0.0.0.0:5500".to_string());
@@ -76,13 +90,9 @@ async fn main() {
         .unwrap_or_else(|_| panic!("Unable to parse socket address {}", service_addr_port));
 
     // Create a service that will handle incoming requests using handle_request function
-    let service = make_service_fn(|_| async { Ok::<_, Infallible>(service_fn(handle_request)) });
-    let service = make_service_fn(move |_| {
-    let db_pool_clone = db_pool.clone();
-    async move {
-        Ok::<_, Infallible>(service_fn(move |req| handle_request(req, db_pool_clone.clone())))
-    }
-});
+    // let service = make_service_fn(|_| async { Ok::<_, Infallible>(service_fn(handle_request)) });
+    let service =
+        make_service_fn(move |_| async move { Ok::<_, Infallible>(service_fn(handle_request)) });
 
     // Create and run the server
     let server = Server::bind(&addr).serve(service);

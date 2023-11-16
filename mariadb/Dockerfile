@@ -5,10 +5,10 @@ FROM mariadb:jammy
 ENV MARIADB_USER=httpbin-user
 ENV MARIADB_PASSWORD=aabb
 ENV MARIADB_ROOT_PASSWORD=uuvv
-ENV MARIADB_DATABASE=httpbin-db
+ENV database=httpbin-db
 
 # Copy the initialization script
-COPY create_table.sql /docker-entrypoint-initdb.d/
+COPY init-db.sql /docker-entrypoint-initdb.d/
 
 # Expose the default MariaDB port
 EXPOSE 3306

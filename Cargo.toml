@@ -1,7 +1,7 @@
 [workspace]
 members = [
-    "actix_server",
-    "hyper_service",
-    "mariadb_database",
+    "server",
+    "service",
+    "database",
 ]
 resolver = "2"

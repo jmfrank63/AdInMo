@@ -8,7 +8,10 @@ struct AppConfig {
     service_url: String,
 }
 
-async fn run_endpoint(client: web::Data<Client>, app_config: web::Data<AppConfig>) -> impl Responder {
+async fn run_endpoint(
+    client: web::Data<Client>,
+    app_config: web::Data<AppConfig>,
+) -> impl Responder {
     // Use the stored service URL
     let service_url = &app_config.service_url;
 
@@ -18,7 +21,9 @@ async fn run_endpoint(client: web::Data<Client>, app_config: web::Data<AppConfig
             if response.status().is_success() {
                 match response.text().await {
                     Ok(body) => HttpResponse::Ok().body(body),
-                    Err(_) => HttpResponse::InternalServerError().body("Failed to read response body"),
+                    Err(_) => {
+                        HttpResponse::InternalServerError().body("Failed to read response body")
+                    }
                 }
             } else {
                 HttpResponse::InternalServerError().body("Service responded with an error")
@@ -27,7 +32,6 @@ async fn run_endpoint(client: web::Data<Client>, app_config: web::Data<AppConfig
         Err(_) => HttpResponse::InternalServerError().body("Error forwarding the request"),
     }
 }
-
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {

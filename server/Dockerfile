@@ -4,11 +4,12 @@ ARG RUST_VERSION=1.73
 # Use the official Rust image as a builder
 FROM rust:${RUST_VERSION} as builder
 
-# Set the environment variable for the service address and port
-ENV SERVICE_ADDR_PORT="0.0.0.0:5500"
+# Set the environment variable for the server address and port
+ENV SERVER_ADDR_PORT="0.0.0.0:3300"
+
 # Create a new empty shell project
-RUN USER=root cargo new --bin hyper_service
-WORKDIR /hyper_service
+RUN USER=root cargo new --bin server
+WORKDIR /server
 
 # Copy over your manifests
 COPY ./Cargo.toml ./Cargo.toml
@@ -21,19 +22,14 @@ RUN rm src/*.rs
 COPY ./src ./src
 
 # Build for release
-RUN rm ./target/release/deps/hyper_service*
+RUN rm ./target/release/deps/server*
 RUN cargo build --release
 
 # Final stage
 FROM ubuntu:jammy
 
-# Update package lists and install ca-certificates
-RUN apt-get update \
-    && apt-get install -y curl \
-    && update-ca-certificates
-
 # Copy the build artifact from the builder stage
-COPY --from=builder /hyper_service/target/release/hyper_service .
+COPY --from=builder /server/target/release/server .
 
 # Set the startup command to run your binary
-CMD ["./hyper_service"]
+CMD ["./server"]
