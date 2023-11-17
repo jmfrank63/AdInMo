@@ -1,3 +1,7 @@
+pub mod crud;
+pub mod error;
+pub mod auth;
+
 use dotenv::dotenv;
 use sqlx::{query, MySqlPool};
 use tokio::sync::OnceCell;
