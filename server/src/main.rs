@@ -1,8 +1,8 @@
-use std::env;
-
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use dotenv::dotenv;
+use env_logger::Env;
 use reqwest::Client;
+use std::env;
 
 struct AppConfig {
     service_url: String,
@@ -36,6 +36,12 @@ async fn run_endpoint(
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
+
+    let env = Env::default()
+        .filter_or("APP_LOG_LEVEL", "info") // Default log level
+        .write_style_or("APP_LOG_STYLE", "always");
+    env_logger::init_from_env(env);
+
     let server_addr_port = env::var("SERVER_ADDR_PORT").unwrap_or("0.0.0.0:3300".to_string());
     let service_addr_port = env::var("SERVICE_ADDR_PORT").unwrap_or("0.0.0.0:5500".to_string());
     let app_config = web::Data::new(AppConfig {
@@ -46,7 +52,7 @@ async fn main() -> std::io::Result<()> {
     });
     let client = web::Data::new(Client::new());
 
-    println!("Actix server running on http://{}", server_addr_port);
+    log::info!("Actix server running on http://{}", server_addr_port);
     HttpServer::new(move || {
         App::new()
             .app_data(client.clone())

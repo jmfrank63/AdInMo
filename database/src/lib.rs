@@ -1,6 +1,6 @@
-use sqlx::{MySqlPool, query};
-use tokio::sync::OnceCell;
 use dotenv::dotenv;
+use sqlx::{query, MySqlPool};
+use tokio::sync::OnceCell;
 
 static POOL: OnceCell<MySqlPool> = OnceCell::const_new();
 
@@ -28,8 +28,8 @@ pub async fn insert_into_database(
         .await;
 
     match result {
-        Ok(_) => println!("Insert successful"),
-        Err(e) => eprintln!("Error executing query: {:?}", e),
+        Ok(_) => log::trace!("Insert of {} successful", generated_value),
+        Err(e) => log::error!("Error executing query: {:?}", e),
     }
 
     Ok(())
