@@ -111,6 +111,7 @@ mod tests {
 
     #[actix_web::test]
     async fn test_protected_endpoint_authorized() {
+        dotenv::dotenv().ok();
         let app = test::init_service(
             App::new()
                 .app_data(web::Data::new(AppConfig {
@@ -131,9 +132,10 @@ mod tests {
         database::initialize_root_db_pool()
             .await
             .expect("Failed to initialize root database pool");
+        let basic_auth = std::env::var("BASIC_AUTH").unwrap_or("".to_string());
         let req = test::TestRequest::post()
             .uri("/api/create")
-            .insert_header((header::AUTHORIZATION, "Basic aHR0cGJpbi11c2VyOmFhYmI="))
+            .insert_header((header::AUTHORIZATION, format!("Basic {basic_auth}")))
             .set_json("test")
             .to_request();
         let resp = test::call_service(&app, req).await;
