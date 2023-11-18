@@ -38,16 +38,16 @@ async fn handle_request(_: Request<Body>) -> Result<Response<Body>, Infallible> 
                 continue;
             }
         };
-        let generated_value = match response_body["json"]["value"].as_u64() {
-            Some(generated_value) => generated_value,
+        let value = match response_body["json"]["value"].as_u64() {
+            Some(value) => value,
             None => {
                 log::error!("Error parsing generated value");
                 continue;
             }
         };
-        *freq_map.entry(generated_value).or_insert(0) += 1;
+        *freq_map.entry(value).or_insert(0) += 1;
         if let Err(e) =
-            database::insert_into_database(generated_value as i32, &response_body.to_string()).await
+            database::insert_into_database(value as i32, &response_body.to_string()).await
         {
             log::error!("Error inserting into database: {}", e);
         }

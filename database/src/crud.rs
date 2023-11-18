@@ -4,7 +4,7 @@ use sqlx::query;
 #[derive(sqlx::FromRow, serde::Serialize, serde::Deserialize, Debug)]
 pub struct Request {
     pub id: i32,
-    pub generated_value: i32,
+    pub value: i32,
     pub response_body: String,
 }
 
@@ -12,7 +12,7 @@ pub async fn create_request(request: &Request) -> Result<(), DatabaseError> {
     let pool = get_db_pool().await;
     let result = query("INSERT INTO requests (id, value, response_body) VALUES (?, ?, ?)")
         .bind(request.id)
-        .bind(request.generated_value)
+        .bind(request.value)
         .bind(&request.response_body)
         .execute(pool)
         .await;
@@ -40,13 +40,12 @@ pub async fn get_request(id: i32) -> Result<Request, DatabaseError> {
 // Update
 pub async fn update_request(request: &Request) -> Result<(), DatabaseError> {
     let pool = get_db_pool().await;
-    let result =
-        sqlx::query("UPDATE requests SET generated_value = ?, response_body = ? WHERE id = ?")
-            .bind(request.generated_value)
-            .bind(&request.response_body)
-            .bind(request.id)
-            .execute(pool)
-            .await;
+    let result = sqlx::query("UPDATE requests SET value = ?, response_body = ? WHERE id = ?")
+        .bind(request.value)
+        .bind(&request.response_body)
+        .bind(request.id)
+        .execute(pool)
+        .await;
 
     match result {
         Ok(_) => Ok(()),

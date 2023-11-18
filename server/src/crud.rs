@@ -10,7 +10,7 @@ pub(crate) struct CreateData {
 pub(crate) async fn create_handler(item: web::Json<CreateData>) -> HttpResponse {
     let request = database::crud::Request {
         id: 0, // Assuming the ID is auto-generated
-        generated_value: item.value,
+        value: item.value,
         response_body: item.response_body.clone(),
     };
 
@@ -38,7 +38,7 @@ pub(crate) struct UpdateData {
 pub(crate) async fn update_handler(item: web::Json<UpdateData>) -> HttpResponse {
     let request = database::crud::Request {
         id: item.id,
-        generated_value: item.value,
+        value: item.value,
         response_body: item.response_body.clone(),
     };
 
