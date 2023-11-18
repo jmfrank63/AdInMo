@@ -28,6 +28,8 @@ RUN cargo build --release --bin service
 FROM ubuntu:jammy
 
 ENV DATABASE_URL=mariadb://httpbin-user:aabb@mariadb:3306/httpbin-db
+ENV APP_LOG_LEVEL=debug
+ENV APP_LOG_STYLE=auto
 
 # Update package lists and install ca-certificates
 RUN apt-get update \

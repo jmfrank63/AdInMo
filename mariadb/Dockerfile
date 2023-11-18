@@ -5,7 +5,7 @@ FROM mariadb:jammy
 ENV MARIADB_USER=httpbin-user
 ENV MARIADB_PASSWORD=aabb
 ENV MARIADB_ROOT_PASSWORD=uuvv
-ENV database=httpbin-db
+ENV DATABASE=httpbin-db
 
 # Copy the initialization script
 COPY init-db.sql /docker-entrypoint-initdb.d/

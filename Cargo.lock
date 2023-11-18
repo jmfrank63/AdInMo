@@ -478,6 +478,7 @@ dependencies = [
  "dotenv",
  "env_logger",
  "log",
+ "serde",
  "sqlx",
  "tokio",
 ]
@@ -1678,10 +1679,13 @@ name = "server"
 version = "0.1.0"
 dependencies = [
  "actix-web",
+ "database",
  "dotenv",
  "env_logger",
+ "futures-util",
  "log",
  "reqwest",
+ "serde",
  "tokio",
 ]
 

@@ -3,7 +3,7 @@ set dotenv-load
 # Define a command to build all Docker images
 build:
     #!/usr/bin/env bash
-    docker build -t jmfrank63/server ./server
+    docker build -t jmfrank63/server -f server/Dockerfile .
     docker build -t jmfrank63/service -f service/Dockerfile .
     docker build -t jmfrank63/mariadb ./mariadb
     docker build -t jmfrank63/database ./database

@@ -1,8 +1,13 @@
+mod auth;
+mod crud;
+
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use dotenv::dotenv;
 use env_logger::Env;
 use reqwest::Client;
 use std::env;
+
+use crate::crud::{create_handler, delete_handler, read_handler, update_handler};
 
 struct AppConfig {
     service_url: String,
@@ -39,8 +44,16 @@ async fn main() -> std::io::Result<()> {
 
     let env = Env::default()
         .filter_or("APP_LOG_LEVEL", "info") // Default log level
-        .write_style_or("APP_LOG_STYLE", "always");
+        .write_style_or("APP_LOG_STYLE", "auto");
     env_logger::init_from_env(env);
+
+    database::initialize_db_pool()
+        .await
+        .expect("Failed to initialize database pool");
+
+    database::initialize_root_db_pool()
+        .await
+        .expect("Failed to initialize root database pool");
 
     let server_addr_port = env::var("SERVER_ADDR_PORT").unwrap_or("0.0.0.0:3300".to_string());
     let service_addr_port = env::var("SERVICE_ADDR_PORT").unwrap_or("0.0.0.0:5500".to_string());
@@ -57,7 +70,15 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(client.clone())
             .app_data(app_config.clone())
-            .route("/run", web::get().to(run_endpoint)) // Updated to GET
+            .route("/run", web::get().to(run_endpoint))
+            .service(
+                web::scope("/api")
+                    .wrap(auth::BasicAuth)
+                    .route("/create", web::post().to(create_handler))
+                    .route("/read/{id}", web::get().to(read_handler))
+                    .route("/update", web::put().to(update_handler))
+                    .route("/delete/{id}", web::delete().to(delete_handler)),
+            )
     })
     .bind(server_addr_port)?
     .run()
