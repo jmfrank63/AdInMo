@@ -26,7 +26,7 @@ async fn get_run(server_addr_port: &str) -> Result<(), Error> {
     let response = client.get(format!("http://{server_addr_port}/run")).send().await?;
     assert_eq!(response.status(), StatusCode::OK);
     let body = response.text().await?;
-    print!("Result: {}", body);
+    println!("Result: {}", body);
     assert!(body.contains('['));
     Ok(())
 }
