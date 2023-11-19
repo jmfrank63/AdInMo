@@ -152,6 +152,11 @@ Just is a good choice for development, though if there are more containers eithe
     can be the source of truth. I just didn't want to spend too much time on it.
 - Simply copy over env.example to .env and everything should work.
 
+## Challenge
+
+- A minor bug is in the project, it is very unlikely you will encounter it. I left it in
+  so should there be a technical discussion we can talk about it.
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE.md file for details.
