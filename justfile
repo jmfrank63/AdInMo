@@ -31,3 +31,4 @@ test:
     docker stop client || true
     docker rm client || true
     docker run -d --network adinmo-network --name client jmfrank63/client
+    docker logs client -f
