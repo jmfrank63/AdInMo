@@ -2,9 +2,10 @@
 
 ## Overview
 
-AdInMo is a Rust-based project consisting of two main components: an Actix web server (`server`) and
-a Hyper service (`service`). The project demonstrates the use of Rust for building web services,
-along with Docker for containerization and inter-service communication.
+AdInMo is a Rust-based project consisting of three main components: an Actix web server (`server`) and
+a Hyper service (`service`) and the database (`mariadb`). A test container (`client`) is provided for
+the basic API calls. The project demonstrates the use of Rust for building web services,
+along with Docker for containerization, inter-service communication and database access.
 
 ### Components
 
@@ -13,6 +14,10 @@ along with Docker for containerization and inter-service communication.
 - **Hyper Service (`service`)**: A service built using Hyper that receives
     requests from the Actix server and performs predefined operations (currently
     set to return a simple success message).
+- **Database (`mariadb`)**: A MariaDB database that stores the data for the
+    Hyper service.
+- **Test Client (`client`)**: A test container that can be used to test the
+    Actix server.
 
 ## Getting Started
 
