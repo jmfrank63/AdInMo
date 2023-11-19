@@ -21,11 +21,13 @@ async fn main() {
 
 async fn get_run(server_addr_port: &str) -> Result<(), Error> {
     print!("Running GET /run on {server_addr_port}");
+    println!("...OK");
     let client = Client::new();
     let response = client.get(format!("http://{server_addr_port}/run")).send().await?;
     assert_eq!(response.status(), StatusCode::OK);
-    assert!(response.text().await?.contains('['));
-    println!("...OK");
+    let body = response.text().await?;
+    print!("Result: {}", body);
+    assert!(body.contains('['));
     Ok(())
 }
 
@@ -41,7 +43,6 @@ async fn post_create(server_addr_port: &str) -> Result<(), Error> {
 }))
         .send()
         .await?;
-
     assert_eq!(response.status(), StatusCode::CREATED);
     assert!(response.text().await?.contains("Request created"));
     println!("...OK");

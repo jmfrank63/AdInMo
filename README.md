@@ -25,7 +25,7 @@ along with Docker for containerization, inter-service communication and database
 
 - Rust (1.73 or later)
 - Docker
-- `just` command runner
+- `just` command runner https://github.com/casey/just
 
 ### Installation
 
