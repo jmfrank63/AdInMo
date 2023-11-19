@@ -75,7 +75,7 @@ async fn main() -> std::io::Result<()> {
                     .wrap(auth::BasicAuth)
                     .route("/create", web::post().to(create_handler))
                     .route("/read/{id}", web::get().to(read_handler))
-                    .route("/update", web::put().to(update_handler))
+                    .route("/update/{id}", web::put().to(update_handler))
                     .route("/delete/{id}", web::delete().to(delete_handler)),
             )
     })

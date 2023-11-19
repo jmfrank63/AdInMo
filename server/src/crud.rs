@@ -15,7 +15,7 @@ pub(crate) async fn create_handler(item: web::Json<CreateData>) -> HttpResponse 
     };
 
     match database::crud::create_request(&request).await {
-        Ok(_) => HttpResponse::Created().json("request created"),
+        Ok(_) => HttpResponse::Created().json("Request created"),
         Err(_) => HttpResponse::InternalServerError().json("Error creating request"),
     }
 }
@@ -24,7 +24,7 @@ pub(crate) async fn read_handler(path: web::Path<(i32,)>) -> HttpResponse {
     let id = path.into_inner().0;
     match database::crud::get_request(id).await {
         Ok(request) => HttpResponse::Ok().json(request),
-        Err(_) => HttpResponse::NotFound().json("request not found"),
+        Err(_) => HttpResponse::NotFound().json("Request not found"),
     }
 }
 

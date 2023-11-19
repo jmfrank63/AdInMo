@@ -12,16 +12,19 @@ COPY ./Cargo.lock ./Cargo.lock
 RUN USER=root cargo new --bin server
 RUN USER=root cargo new --bin service
 RUN USER=root cargo new --bin database
+RUN USER=root cargo new --bin client
 
 COPY ./server/Cargo.toml ./server/Cargo.toml
 COPY ./service/Cargo.toml ./service/Cargo.toml
 COPY ./database/Cargo.toml ./database/Cargo.toml
+COPY ./client/Cargo.toml ./client/Cargo.toml
 
 RUN cargo build --release
 # Copy the actual source tree
 COPY . .
 
 # Build for release
+RUN rm ./target/release/deps/server*
 RUN cargo build --release --bin server
 
 # Final stage
